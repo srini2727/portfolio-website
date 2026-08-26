@@ -1,31 +1,68 @@
-# Hosting on Netlify
+# Hosting Guide
 
-You can host your website for free on Netlify. There are two main ways to do this:
+This site is hosted on **GitHub Pages** and served at **https://srinik.me**.
 
-## Method 1: Drag & Drop (Easiest)
-This method is perfect for getting your site online quickly without installing anything.
+## How it works
 
-1.  **Prepare your folder**: Make sure your `Website` folder contains `index.html`, `css/`, `js/`, and `assets/`.
-2.  **Go to Netlify Drop**: Open [https://app.netlify.com/drop](https://app.netlify.com/drop) in your browser.
-3.  **Drag and Drop**: Drag your **entire `Website` folder** onto the designated area on the page.
-4.  **Wait for Upload**: Netlify will upload and deploy your site in a few seconds.
-5.  **Done!** You will get a live URL (e.g., `amazing-site-12345.netlify.app`). You can change this site name in "Site Settings".
+- **Source:** the `main` branch, `/ (root)` folder
+- **Custom domain:** `srinik.me`, stored in the `CNAME` file at the repo root — **do not delete that file**
+- Every push to `main` triggers a `pages-build-deployment` workflow run. The live site updates about 1–3 minutes later.
 
-### How to cleanup/update content later?
-To update your site (e.g., change text, add a project):
-1.  Edit the files on your computer.
-2.  Go to your site dashboard on Netlify.
-3.  Go to **Deploys**.
-4.  Drag your **updated `Website` folder** again onto the designated drop zone.
-5.  The site will update instantly.
+## Updating the site
 
----
+1. Edit `index.html`, `css/styles.css`, `js/script.js`, or anything in `assets/`.
+2. Commit to `main` (directly, or via a pull request you merge).
+3. Watch the run under the repo's **Actions** tab.
+4. When it goes green, hard-refresh the site: `Ctrl + Shift + R` (Windows) or `Cmd + Shift + R` (Mac).
 
-## Method 2: Connect to GitHub (Recommended for Long Term)
-If you use GitHub, this is the better way because the site updates automatically when you push code.
+To swap the resume PDF, upload the new file over `assets/resume.pdf` — the Resume button in the navbar points there.
 
-1.  **Push to GitHub**: Create a repository on GitHub and push your code there.
-2.  **New Site from Git**: Log in to Netlify and select "New site from Git".
-3.  **Select Repository**: Choose your `Website` repository.
-4.  **Deploy**: Click "Deploy Site".
-5.  **Updates**: Now, whenever you change code and push to GitHub, Netlify updates your site automatically!
+## DNS configuration
+
+Set at the registrar where `srinik.me` is managed:
+
+| Type  | Name | Value                 |
+| ----- | ---- | --------------------- |
+| A     | @    | `185.199.108.153`     |
+| A     | @    | `185.199.109.153`     |
+| A     | @    | `185.199.110.153`     |
+| A     | @    | `185.199.111.153`     |
+| CNAME | www  | `srini2727.github.io` |
+
+Optional IPv6 — add as `AAAA` records on `@`:
+
+```
+2606:50c0:8000::153
+2606:50c0:8001::153
+2606:50c0:8002::153
+2606:50c0:8003::153
+```
+
+A CNAME on `www` is preferred over A records, because it keeps working if GitHub ever changes those IPs.
+
+## HTTPS
+
+Under **Settings → Pages**, **Enforce HTTPS** should stay checked.
+
+GitHub issues the TLS certificate automatically. After the custom domain is first set — or changed — the checkbox is greyed out until the certificate finishes being issued. That usually takes a few minutes, occasionally a few hours. During that window `https://www.srinik.me` may show a certificate warning; it clears on its own.
+
+## Settings reference
+
+Repo → **Settings** → **Pages**:
+
+- **Source:** Deploy from a branch
+- **Branch:** `main`, folder `/ (root)`
+- **Custom domain:** `srinik.me`
+- **Enforce HTTPS:** on
+
+## Troubleshooting
+
+| Symptom | Cause / fix |
+| --- | --- |
+| "Site not found · GitHub Pages" | Build still running. Check **Actions**. |
+| Certificate warning on `www` | Certificate not yet issued or reissued. Wait it out. |
+| Changes not showing | Build finished but the browser cached the old page — hard-refresh. |
+| Custom domain field went empty | The `CNAME` file was deleted. Re-enter `srinik.me` under Settings → Pages. |
+| DNS check fails | A records no longer match the four IPs above. |
+
+Do not point `srinik.me` at a second host (Netlify, Vercel, etc.) while GitHub Pages is serving it — pick one.
